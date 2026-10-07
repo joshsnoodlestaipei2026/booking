@@ -2,6 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>久時拌麵 · 線上訂位</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
@@ -17,6 +18,7 @@
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
+  html{-webkit-text-size-adjust:100%;}
   body{font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;-webkit-tap-highlight-color:transparent;}
   .app{max-width:600px;margin:0 auto;padding:20px 16px 100px;}
   .header{text-align:center;margin-bottom:32px;}
@@ -28,7 +30,7 @@
   .field label{display:block;font-size:12px;color:var(--ink-soft);margin-bottom:6px;font-weight:500;}
   .field input[type=date],.field input[type=text],.field input[type=tel],.field select{
     width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;
-    font-size:15px;background:var(--surface);color:var(--ink);font-family:inherit;
+    font-size:16px;background:var(--surface);color:var(--ink);font-family:inherit;
   }
   .field select{cursor:pointer;}
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
@@ -100,7 +102,7 @@
   .notice-card ol{margin:0 0 18px;padding-left:22px;font-size:14px;line-height:1.7;color:var(--ink);}
   .notice-card li{margin-bottom:8px;}
   .notice-card li::marker{color:var(--brass-deep);font-weight:700;}
-  textarea{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:15px;background:var(--surface);color:var(--ink);font-family:inherit;resize:vertical;min-height:64px;}
+  textarea{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:16px;background:var(--surface);color:var(--ink);font-family:inherit;resize:vertical;min-height:64px;}
   .privacy{font-size:12px;color:var(--ink-soft);line-height:1.6;margin:10px 0 12px;}
 </style>
 </head>
