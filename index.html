@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>久時拌麵 · 線上訂位</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FBF7F0; --paper-dim:#F3ECDF; --surface:#FFFFFF;
+    --ink:#2B2420; --ink-soft:#6B6055;
+    --brass:#B8843C; --brass-deep:#93672B;
+    --pine:#1F3B36; --pine-soft:#EDF3F1;
+    --sage:#6B8F71; --sage-soft:#E9F1EA;
+    --rose:#C97B84; --rose-soft:#FBECEE;
+    --line:#E4DBC9; --shadow:0 4px 16px rgba(43,36,32,0.08); --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;-webkit-tap-highlight-color:transparent;}
+  .app{max-width:600px;margin:0 auto;padding:20px 16px 100px;}
+  .header{text-align:center;margin-bottom:32px;}
+  .header .name{font-family:"Noto Serif TC",serif;font-weight:700;font-size:28px;letter-spacing:2px;color:var(--pine);margin:0;}
+  .header .tag{font-size:13px;color:var(--ink-soft);margin-top:4px;}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:16px;box-shadow:var(--shadow);}
+  .card h2{font-family:"Noto Serif TC",serif;font-size:16px;color:var(--pine);margin:0 0 14px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:12px;color:var(--ink-soft);margin-bottom:6px;font-weight:500;}
+  .field input[type=date],.field input[type=text],.field input[type=tel],.field select{
+    width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;
+    font-size:15px;background:var(--surface);color:var(--ink);font-family:inherit;
+  }
+  .field select{cursor:pointer;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .time-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .time-btn{padding:14px;border:2px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;}
+  .time-btn:hover:not(:disabled){border-color:var(--brass);background:var(--paper-dim);}
+  .time-btn.selected{background:var(--pine);border-color:var(--pine);color:#fff;}
+  .time-btn:disabled{opacity:0.5;cursor:not-allowed;color:var(--ink-soft);}
+  .person-select{display:flex;align-items:center;gap:12px;}
+  .person-select select{flex:1;}
+  .warning{font-size:12px;color:var(--rose);margin-top:6px;display:none;}
+  .warning.show{display:block;}
+  .stepper{display:flex;align-items:center;gap:12px;}
+  .stepper button{width:38px;height:38px;border-radius:8px;border:1px solid var(--line);background:var(--surface);font-size:16px;cursor:pointer;}
+  .stepper .val{font-family:"Noto Serif TC",serif;font-size:16px;font-weight:700;min-width:30px;text-align:center;}
+  .person-note{font-size:12px;color:var(--ink-soft);margin-top:6px;}
+  .btn{width:100%;padding:13px;border-radius:12px;border:none;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;}
+  .btn.primary{background:var(--pine);color:#fff;}
+  .btn.primary:hover:not(:disabled){background:#0d2823;}
+  .btn.primary:disabled{opacity:0.5;cursor:not-allowed;}
+  .btn.ghost{background:var(--surface);color:var(--ink);border:1px solid var(--line);margin-bottom:10px;}
+  .err{color:var(--rose);font-size:12px;margin-top:6px;min-height:14px;}
+  .success-screen{display:none;}
+  .success-screen.show{display:block;}
+  .form-screen{display:block;}
+  .form-screen.hide{display:none;}
+  .success-icon{font-size:48px;text-align:center;margin-bottom:16px;}
+  .success-text{text-align:center;margin-bottom:20px;}
+  .success-text h2{font-family:"Noto Serif TC",serif;font-size:22px;color:var(--pine);margin:0 0 8px;}
+  .success-text p{font-size:14px;color:var(--ink-soft);margin:0;}
+  .booking-summary{background:var(--paper-dim);border-radius:10px;padding:14px;margin-bottom:16px;font-size:13px;line-height:1.6;}
+  .booking-summary .row{display:flex;justify-content:space-between;margin-bottom:6px;}
+  .booking-summary .label{color:var(--ink-soft);}
+  .booking-summary .value{font-weight:600;color:var(--ink);}
+  .cal-box{margin:4px 0 12px;}
+  .cal-title{font-size:12px;color:var(--ink-soft);margin:0 0 8px;text-align:center;}
+  a.cal-btn{display:block;box-sizing:border-box;text-align:center;text-decoration:none;background:var(--brass);color:#fff;margin-bottom:8px;}
+  a.cal-btn:hover{background:var(--brass-deep);}
+  a.cal-btn.alt{background:var(--surface);color:var(--pine);border:1px solid var(--line);}
+  .cal-hint{font-size:12px;color:var(--ink-soft);text-align:center;margin:2px 0 0;line-height:1.5;}
+  .toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%) translateY(10px);background:var(--pine);color:#fff;padding:10px 18px;border-radius:99px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:60;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .loading{text-align:center;color:var(--ink-soft);padding:40px 20px;}
+
+  .time-btn small{display:block;font-size:11px;font-weight:400;color:var(--ink-soft);margin-top:2px;}
+  .time-btn:disabled small{color:var(--rose);}
+  .notice{background:var(--rose-soft);color:var(--rose);border-radius:10px;padding:10px 12px;font-size:13px;margin-top:10px;display:none;line-height:1.5;}
+  .notice.show{display:block;}
+  .closed-banner{background:var(--paper-dim);border:1px solid var(--line);border-radius:var(--radius);padding:14px;text-align:center;font-size:14px;color:var(--ink-soft);margin-bottom:16px;display:none;}
+  .closed-banner.show{display:block;}
+  .cancel-note{font-size:12px;color:var(--ink-soft);text-align:center;margin:14px 0 0;line-height:1.6;}
+
+
+  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+  .link-btn{border:none;background:none;color:var(--brass-deep);font-size:13px;font-weight:700;text-decoration:underline;cursor:pointer;font-family:inherit;padding:6px 2px;}
+  .lang-btn{border:1px solid var(--line);background:var(--surface);color:var(--pine);font-size:13px;font-weight:700;padding:6px 14px;border-radius:99px;cursor:pointer;font-family:inherit;}
+  .contact-links{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:10px;}
+  .contact-links a{font-size:13px;font-weight:700;color:var(--pine);border:1px solid var(--line);background:var(--surface);padding:8px 14px;border-radius:99px;text-decoration:none;}
+  .cancel-note a.tel{color:var(--pine);font-weight:700;text-decoration:none;}
+
+  .closed-day{grid-column:1/-1;background:var(--paper-dim);border:1px solid var(--line);border-radius:10px;padding:16px 14px;text-align:center;color:var(--ink-soft);font-size:14px;line-height:1.7;}
+  .closed-day b{display:block;font-size:16px;color:var(--pine);margin-bottom:2px;}
+  .notice-overlay{position:fixed;inset:0;background:rgba(43,36,32,0.55);display:none;align-items:center;justify-content:center;z-index:100;padding:16px;}
+  .notice-overlay.open{display:flex;}
+  .notice-card{background:var(--paper);border-radius:18px;width:100%;max-width:460px;max-height:88vh;overflow-y:auto;padding:22px 20px 20px;box-shadow:0 12px 40px rgba(0,0,0,.25);}
+  .notice-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+  .notice-card h2{font-family:"Noto Serif TC",serif;font-size:20px;color:var(--pine);margin:0;}
+  .notice-lead{font-size:13px;color:var(--ink-soft);margin:0 0 14px;}
+  .notice-card ol{margin:0 0 18px;padding-left:22px;font-size:14px;line-height:1.7;color:var(--ink);}
+  .notice-card li{margin-bottom:8px;}
+  .notice-card li::marker{color:var(--brass-deep);font-weight:700;}
+  textarea{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:15px;background:var(--surface);color:var(--ink);font-family:inherit;resize:vertical;min-height:64px;}
+  .privacy{font-size:12px;color:var(--ink-soft);line-height:1.6;margin:10px 0 12px;}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="topbar"><button type="button" class="link-btn" id="noticeBtn" data-i18n="noticeLink"></button><button type="button" class="lang-btn" id="langBtn">EN</button></div>
+
+  <div class="form-screen" id="formScreen">
+    <div class="header">
+      <h1 class="name">久時拌麵</h1>
+      <p class="tag" data-i18n="tagline"></p>
+    </div>
+
+    <div class="closed-banner" id="closedBanner" data-i18n="closedBanner"></div>
+
+    <div class="card">
+      <h2 data-i18n="step1"></h2>
+      <div class="field">
+        <input type="date" id="fDate">
+        <div class="err" id="errDate"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 data-i18n="step2"></h2>
+      <div class="field">
+        <div class="stepper">
+          <button type="button" id="minusBtn" aria-label="-">－</button>
+          <div class="val" id="sizeVal">2</div>
+          <button type="button" id="plusBtn" aria-label="+">＋</button>
+        </div>
+        <div class="notice" id="bigPartyNotice"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 data-i18n="step3"></h2>
+      <div id="timeSlots" class="time-grid"></div>
+      <div class="err" id="errTime"></div>
+    </div>
+
+    <div class="card">
+      <h2 data-i18n="step4"></h2>
+      <div class="field">
+        <label data-i18n="lblName"></label>
+        <input type="text" id="fName" maxlength="30" data-i18n-ph="phName">
+        <div class="err" id="errName"></div>
+      </div>
+      <div class="field">
+        <label data-i18n="lblPhone"></label>
+        <input type="tel" id="fPhone" placeholder="09xx-xxx-xxx" maxlength="20">
+        <div class="err" id="errPhone"></div>
+      </div>
+      <div class="field">
+        <label data-i18n="lblNote"></label>
+        <textarea id="fNote" maxlength="200" data-i18n-ph="phNote"></textarea>
+      </div>
+      <div class="err" id="errSubmit"></div>
+      <p class="privacy" id="privacyNote"></p>
+      <button class="btn primary" id="submitBtn"></button>
+    </div>
+  </div>
+
+  <div class="success-screen" id="successScreen">
+    <div class="header">
+      <h1 class="name">久時拌麵</h1>
+      <p class="tag" data-i18n="tagDone"></p>
+    </div>
+    <div class="card">
+      <div class="success-icon">✓</div>
+      <div class="success-text">
+        <h2 data-i18n="okTitle"></h2>
+        <p data-i18n="okSub"></p>
+      </div>
+      <div class="booking-summary" id="bookingSummary"></div>
+      <div class="cal-box">
+        <div class="cal-title" data-i18n="calTitle"></div>
+        <a class="btn cal-btn" id="gcalBtn" target="_blank" rel="noopener noreferrer" data-i18n="calGoogle"></a>
+        <a class="btn cal-btn alt" id="icsBtn" target="_blank" rel="noopener noreferrer" data-i18n="calApple"></a>
+        <p class="cal-hint" data-i18n="calHint"></p>
+      </div>
+      <button class="btn ghost" id="newBookingBtn" style="margin-top:10px;" data-i18n="btnAgain"></button>
+      <p class="cancel-note" id="cancelNote"></p>
+      <div class="contact-links" id="contactLinks"></div>
+    </div>
+  </div>
+</div>
+
+<div class="notice-overlay" id="noticeOverlay" role="dialog" aria-modal="true" aria-labelledby="noticeTitle">
+  <div class="notice-card">
+    <div class="notice-head">
+      <h2 id="noticeTitle" data-i18n="noticeTitle"></h2>
+      <button type="button" class="lang-btn" id="noticeLang">EN</button>
+    </div>
+    <p class="notice-lead" data-i18n="noticeLead"></p>
+    <ol id="noticeList"></ol>
+    <button type="button" class="btn primary" id="noticeOk" data-i18n="noticeOk"></button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  const T = {
+    zh: {
+      tagline:"Josh's Noodles · 線上訂位", tagDone:"Josh's Noodles · 訂位完成",
+      closedBanner:'目前暫停線上訂位，請來電或私訊洽詢，謝謝您。',
+      step1:'1. 選擇日期', step2:'2. 用餐人數', step3:'3. 選擇時段', step4:'4. 您的資訊',
+      lblName:'姓名', phName:'例：王小姐', lblPhone:'電話',
+      submit:'確認訂位', submitting:'訂位中…', loadingSlots:'讀取時段中…',
+      loadFail:'讀取失敗，請重新整理頁面',
+      lunch:'午餐', dinner:'晚餐', full:'額滿', passed:'已過', closed:'暫停',
+      errDate:'請選擇日期', errTime:'請選擇時段', errName:'請輸入姓名', errPhone:'請輸入正確的電話',
+      errPaused:'目前暫停線上訂位。',
+      errNet:'連線失敗，請檢查網路後再試一次（請先不要重複送出，以免重複訂位）。',
+      errGeneric:'訂位失敗，請稍後再試',
+      okTitle:'訂位成功！', okSub:'我們已幫您保留位子，期待您的光臨',
+      sDate:'日期', sTime:'時段', sGuests:'人數', sName:'姓名', sPhone:'電話',
+      btnAgain:'再訂一筆',
+      pageLabel:'Facebook 粉絲專頁', igLabel:'Instagram',
+      calTitle:'加到行事曆', calGoogle:'加到 Google 日曆', calApple:'加到 iPhone 行事曆（.ics）',
+      calHint:'iPhone 版會在前一天與用餐前 2 小時提醒您；Google 日曆則依您的預設提醒時間。',
+      lblNote:'備註（選填）', phNote:'例：食物過敏、兒童座椅、慶生', sNote:'備註',
+      noticeLink:'訂位須知', noticeTitle:'訂位須知', noticeLead:'訂位前請先閱讀以下事項', noticeOk:'我已了解，開始訂位',
+      closedTitle:'店休日', dayOffTitle:'本日休息', dayOffBody:'這天不開放訂位，請選擇其他日期。'
+    },
+    en: {
+      tagline:"Josh's Noodles · Online Booking", tagDone:"Josh's Noodles · Booking Complete",
+      closedBanner:'Online booking is currently paused. Please call or message us. Thank you!',
+      step1:'1. Date', step2:'2. Party size', step3:'3. Time', step4:'4. Your details',
+      lblName:'Name', phName:'e.g. Ms. Wang', lblPhone:'Phone',
+      submit:'Confirm booking', submitting:'Booking…', loadingSlots:'Loading times…',
+      loadFail:'Failed to load. Please refresh the page.',
+      lunch:'Lunch', dinner:'Dinner', full:'Full', passed:'Passed', closed:'Unavailable',
+      errDate:'Please choose a date', errTime:'Please choose a time', errName:'Please enter your name', errPhone:'Please enter a valid phone number',
+      errPaused:'Online booking is currently paused.',
+      errNet:"Connection failed. Please check your network and try again (please don't resubmit yet, to avoid a duplicate booking).",
+      errGeneric:'Booking failed. Please try again later.',
+      okTitle:'Booking confirmed!', okSub:"Your table is saved. We look forward to seeing you!",
+      sDate:'Date', sTime:'Time', sGuests:'Guests', sName:'Name', sPhone:'Phone',
+      btnAgain:'Book another',
+      pageLabel:'Facebook', igLabel:'Instagram',
+      calTitle:'Add to calendar', calGoogle:'Add to Google Calendar', calApple:'Add to iPhone Calendar (.ics)',
+      calHint:'The iPhone version reminds you the day before and 2 hours before; Google Calendar uses your default reminder.',
+      lblNote:'Notes (optional)', phNote:'e.g. food allergies, high chair, birthday', sNote:'Notes',
+      noticeLink:'Booking notes', noticeTitle:'Booking Notes', noticeLead:'Please read before booking', noticeOk:'I understand — start booking',
+      closedTitle:'Closed', dayOffTitle:'Closed on this date', dayOffBody:'Booking is not available on this date. Please choose another date.'
+    }
+  };
+  const DOW = { zh:['日','一','二','三','四','五','六'], en:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'] };
+  const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  let lang = 'zh';
+  try{ lang = localStorage.getItem('jiou_lang') || ''; }catch(e){}
+  if(lang !== 'zh' && lang !== 'en') lang = /^zh/i.test(navigator.language || '') ? 'zh' : 'en';
+
+  let cfg = { open:true, slots:[], maxParty:4, minDate:'', maxDate:'', closedWeekdays:[0,1], extraOpenDates:[], noticeZh:[], noticeEn:[], callPhone:'', fbUrl:'', igUrl:'', address:'', webAppUrl:'', eventMinutes:90, privacyZh:'', privacyEn:'' };
+  let avail = null, selectedDate = '', selectedTime = '', partySize = 2, submitting = false;
+  let lastBooking = null;
+
+  const $ = id => document.getElementById(id);
+  const t = k => T[lang][k];
+  function fmtDate(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+  function parseDate(s){const a=s.split('-').map(Number);return new Date(a[0],a[1]-1,a[2]);}
+  function todayStr(){return fmtDate(new Date());}
+  function bucketOf(n){ return n<=1 ? '1' : (n===2 ? '2' : '4'); }
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+  function niceDate(s){
+    const d = parseDate(s);
+    return lang==='zh' ? (d.getMonth()+1)+'月'+d.getDate()+'日（週'+DOW.zh[d.getDay()]+'）'
+                       : DOW.en[d.getDay()]+', '+MON[d.getMonth()]+' '+d.getDate();
+  }
+  function guests(n){ return lang==='zh' ? n+' 位' : n+(n===1?' guest':' guests'); }
+  function telDigits(p){ return String(p).replace(/[^0-9+]/g,''); }
+  function showToast(m){const x=$('toast');x.textContent=m;x.classList.add('show');setTimeout(()=>x.classList.remove('show'),2400);}
+  // ★ 管理者只需要改這一行：把引號裡的文字換成你的 Apps Script「網頁應用程式」/exec 網址
+  const API_URL = 'https://script.google.com/macros/s/AKfycbzFuAoceWLiqpu8g_KokxtYYem5K57y7mA09iwEUb3t1IBnY9v7j-aUV9s_j7403DHR/exec';
+
+  async function apiCall(url, opts){
+    const r = await fetch(url, opts);
+    if(!r.ok) throw new Error('HTTP ' + r.status);
+    const j = await r.json();
+    if(!j || !j.ok) throw new Error((j && j.error) || 'api error');
+    return j.data;
+  }
+  function runServer(fn, ...args){
+    if(!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(API_URL)) return Promise.reject(new Error('API_URL not set'));
+    const bust = '&t=' + Date.now();   // 避免被瀏覽器快取
+    if(fn === 'getPublicConfig') return apiCall(API_URL + '?api=config' + bust, { cache:'no-store' });
+    if(fn === 'getSlotAvailability') return apiCall(API_URL + '?api=availability&date=' + encodeURIComponent(args[0]) + bust, { cache:'no-store' });
+    if(fn === 'submitBooking') return apiCall(API_URL, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body: JSON.stringify({ action:'submit', data: args[0] }) });
+    return Promise.reject(new Error('unsupported call'));
+  }
+  function serverMsg(r){ return lang==='zh' ? (r.message || t('errGeneric')) : (r.messageEn || r.message || t('errGeneric')); }
+
+  function applyStatic(){
+    document.documentElement.lang = lang==='zh' ? 'zh-Hant' : 'en';
+    document.title = lang==='zh' ? '久時拌麵 · 線上訂位' : "Josh's Noodles · Online Booking";
+    document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent = t(el.dataset.i18n); });
+    document.querySelectorAll('[data-i18n-ph]').forEach(el=>{ el.placeholder = t(el.dataset.i18nPh); });
+    $('langBtn').textContent = lang==='zh' ? 'EN' : '中文';
+    if(!submitting) $('submitBtn').textContent = t('submit');
+    updateBigPartyNotice();
+    renderSlots();
+    renderNotice();
+    renderPrivacy();
+    if(lastBooking) renderSuccess();
+  }
+
+  function closedNames(){
+    const zh = '日一二三四五六';
+    const en = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const w = cfg.closedWeekdays || [];
+    if(lang==='zh') return w.map(n=>'週'+zh.charAt(n)).join('、');
+    return w.length<=1 ? (en[w[0]]||'') : w.slice(0,-1).map(n=>en[n]).join(', ')+' and '+en[w[w.length-1]];
+  }
+  function closedDayMsg(){
+    return lang==='zh' ? closedNames()+'為店休日，請選擇其他日期。' : 'We are closed on '+closedNames()+'. Please choose another date.';
+  }
+  function firstOpenDate(){
+    const w = cfg.closedWeekdays || [];
+    for(let i=0;i<14;i++){
+      const d = parseDate(cfg.minDate); d.setDate(d.getDate()+i);
+      const str = fmtDate(d);
+      if(str > cfg.maxDate) break;
+      if(w.indexOf(d.getDay()) === -1 || (cfg.extraOpenDates||[]).indexOf(str) > -1) return str;
+    }
+    return cfg.minDate;
+  }
+
+  function privacyText(){
+    const custom = lang==='zh' ? cfg.privacyZh : cfg.privacyEn;
+    if(custom) return custom;
+    return lang==='zh'
+      ? '我們會蒐集您的姓名、電話與備註，僅用於本次訂位的聯絡與訂位管理（含未到紀錄）。如需查詢、更正或刪除，請來電聯絡。'
+      : 'We collect your name, phone number and notes only to contact you about this booking and to manage reservations (including no-show records). To view, correct or delete your data, please call us.';
+  }
+  function renderPrivacy(){ $('privacyNote').textContent = privacyText(); }
+
+  function noticeLines(){
+    const custom = lang==='zh' ? cfg.noticeZh : cfg.noticeEn;
+    if(custom && custom.length) return custom;
+    const hasClosed = (cfg.closedWeekdays||[]).length > 0;
+    if(lang==='zh') return [
+      '座位自訂位時間起保留 10 分鐘，逾時未到，座位將釋出給現場候位的客人。',
+      '現場如有候位客人，用餐時間限 75 分鐘，敬請見諒。',
+      '網站開放當日起一個月內、1–4 位的訂位；5 位以上請來電洽詢。',
+      '如需更改或取消，請提早來電或私訊我們。'
+    ].concat(hasClosed ? ['每'+closedNames()+'為店休日。'] : [], [
+      '如有食物過敏或特殊需求，請填寫備註欄，謝謝您。'
+    ]);
+    return [
+      'Your table is held for 10 minutes from the booking time. After that, it may be released to guests waiting on site.',
+      'When guests are waiting, dining time is limited to 75 minutes. Thank you for your understanding.',
+      'Online booking is open up to one month ahead, for 1–4 guests. For 5 or more, please call us.',
+      'To change or cancel, please call or message us as early as you can.'
+    ].concat(hasClosed ? ['We are closed every '+closedNames()+'.'] : [], [
+      'For food allergies or special requests, please fill in the notes field. Thank you!'
+    ]);
+  }
+  function renderNotice(){
+    $('noticeList').innerHTML = noticeLines().map(x=>'<li>'+esc(x)+'</li>').join('');
+    $('noticeLang').textContent = lang==='zh' ? 'EN' : '中文';
+  }
+  function showNotice(){ renderNotice(); $('noticeOverlay').classList.add('open'); document.body.style.overflow='hidden'; $('noticeOk').focus(); }
+  function hideNotice(){ $('noticeOverlay').classList.remove('open'); document.body.style.overflow=''; }
+  function toggleLang(){
+    lang = lang==='zh' ? 'en' : 'zh';
+    try{ localStorage.setItem('jiou_lang', lang); }catch(e){}
+    applyStatic();
+  }
+
+  function telHtml(){ return cfg.callPhone ? ' <a class="tel" href="tel:'+esc(telDigits(cfg.callPhone))+'">'+esc(cfg.callPhone)+'</a> ' : ' '; }
+
+  function updateBigPartyNotice(){
+    const n = $('bigPartyNotice');
+    if(partySize > cfg.maxParty){
+      const k = cfg.maxParty + 1;
+      n.innerHTML = lang==='zh'
+        ? k+' 位以上的訂位，請來電'+(cfg.callPhone?'（'+esc(cfg.callPhone)+'）':'')+'或私訊我們，謝謝您。'
+        : 'For parties of '+k+' or more, please call'+(cfg.callPhone?' ('+esc(cfg.callPhone)+')':'')+' or message us. Thank you!';
+      n.classList.add('show');
+    }else n.classList.remove('show');
+  }
+
+  async function init(){
+    $('langBtn').addEventListener('click', toggleLang);
+    $('noticeLang').addEventListener('click', toggleLang);
+    $('noticeBtn').addEventListener('click', showNotice);
+    $('noticeOk').addEventListener('click', hideNotice);
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape') hideNotice(); });
+    applyStatic();
+    showNotice();   // 一打開就先顯示訂位須知
+    $('timeSlots').innerHTML = '<div class="loading">'+esc(t('loadingSlots'))+'</div>';
+    try{ cfg = await runServer('getPublicConfig'); }
+    catch(e){
+      console.error(e);
+      const unset = String(e && e.message).indexOf('API_URL') > -1;
+      $('timeSlots').innerHTML = '<div style="color:var(--rose)">'+esc(unset ? '（管理者請注意）index.html 裡還沒填入 /exec 網址' : t('loadFail'))+'</div>';
+      return;
+    }
+    const input = $('fDate');
+    input.min = cfg.minDate;
+    input.max = cfg.maxDate;
+    selectedDate = firstOpenDate(); input.value = selectedDate;
+    renderNotice();
+    renderPrivacy();
+    input.addEventListener('change', ()=>{ selectedDate = input.value; selectedTime = ''; loadAvailability(); });
+    $('closedBanner').classList.toggle('show', !cfg.open);
+    updateBigPartyNotice();
+    loadAvailability();
+  }
+
+  async function loadAvailability(){
+    if(!selectedDate){ $('timeSlots').innerHTML=''; return; }
+    $('timeSlots').innerHTML = '<div class="loading">'+esc(t('loadingSlots'))+'</div>';
+    try{ avail = await runServer('getSlotAvailability', selectedDate); renderSlots(); }
+    catch(e){ console.error(e); $('timeSlots').innerHTML = '<div style="color:var(--rose)">'+esc(t('loadFail'))+'</div>'; }
+  }
+
+  function renderSlots(){
+    const box = $('timeSlots');
+    if(!avail) return;
+    box.innerHTML = '';
+    if(avail.closedDay || avail.dayOff){
+      selectedTime = '';
+      box.innerHTML = avail.closedDay
+        ? '<div class="closed-day"><b>'+esc(t('closedTitle'))+'</b>'+esc(closedDayMsg())+'</div>'
+        : '<div class="closed-day"><b>'+esc(t('dayOffTitle'))+'</b>'+esc(t('dayOffBody'))+'</div>';
+      return;
+    }
+    const big = partySize > cfg.maxParty, bucket = bucketOf(partySize);
+    const cur = avail.slots.find(s=>s.time===selectedTime);
+    if(selectedTime && (!cur || !cur.open[bucket] || big)) selectedTime = '';
+    avail.slots.forEach(slot=>{
+      const ok = avail.open && !big && slot.open[bucket];
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'time-btn' + (ok && selectedTime===slot.time ? ' selected' : '');
+      let note = '';
+      if(slot.passed) note = t('passed'); else if(slot.closed) note = t('closed'); else if(!slot.open[bucket]) note = t('full');
+      const meal = slot.meal==='lunch' ? t('lunch') : (slot.meal==='dinner' ? t('dinner') : slot.label);
+      btn.innerHTML = esc(meal+' '+slot.time) + (note ? '<small>'+esc(note)+'</small>' : '');
+      btn.disabled = !ok;
+      btn.addEventListener('click', ()=>{ selectedTime = slot.time; $('errTime').textContent=''; renderSlots(); });
+      box.appendChild(btn);
+    });
+  }
+
+  function setSize(n){
+    partySize = Math.min(10, Math.max(1, n));
+    $('sizeVal').textContent = partySize;
+    updateBigPartyNotice(); renderSlots();
+  }
+  $('minusBtn').addEventListener('click', ()=>setSize(partySize-1));
+  $('plusBtn').addEventListener('click', ()=>setSize(partySize+1));
+
+  $('submitBtn').addEventListener('click', async ()=>{
+    if(submitting) return;
+    ['errName','errPhone','errDate','errTime','errSubmit'].forEach(id=>$(id).textContent='');
+    const name = $('fName').value.trim(), phone = $('fPhone').value.trim();
+    if(!cfg.open){ $('errSubmit').textContent = t('errPaused'); return; }
+    if(!selectedDate){ $('errDate').textContent = t('errDate'); return; }
+    if(avail && (avail.closedDay || avail.dayOff)){ $('errDate').textContent = avail.closedDay ? closedDayMsg() : t('dayOffBody'); return; }
+    if(partySize > cfg.maxParty){ updateBigPartyNotice(); return; }
+    if(!selectedTime){ $('errTime').textContent = t('errTime'); return; }
+    if(!name){ $('errName').textContent = t('errName'); return; }
+    if(phone.replace(/\D/g,'').length < 8){ $('errPhone').textContent = t('errPhone'); return; }
+
+    const note = $('fNote').value.trim();
+    submitting = true;
+    const btn = $('submitBtn'); btn.disabled = true; btn.textContent = t('submitting');
+    try{
+      const res = await runServer('submitBooking', { date:selectedDate, time:selectedTime, name, phone, partySize, note });
+      if(res && res.ok){
+        lastBooking = { date:res.date, time:res.time, size:res.partySize, name, phone, note };
+        $('formScreen').classList.add('hide'); $('successScreen').classList.add('show');
+        renderSuccess(); window.scrollTo(0,0);
+      }else{
+        $('errSubmit').textContent = serverMsg(res || {});
+        if(res && (res.full || res.closed || res.closedDay)){ selectedTime=''; loadAvailability(); }
+      }
+    }catch(e){ console.error(e); $('errSubmit').textContent = t('errNet'); }
+    submitting = false; btn.disabled = false; btn.textContent = t('submit');
+  });
+
+  function renderSuccess(){
+    const b = lastBooking; if(!b) return;
+    const row = (l,v)=>'<div class="row"><span class="label">'+esc(l)+'</span><span class="value">'+esc(v)+'</span></div>';
+    $('bookingSummary').innerHTML =
+      row(t('sDate'), niceDate(b.date)) + row(t('sTime'), b.time) + row(t('sGuests'), guests(b.size)) +
+      row(t('sName'), b.name) + row(t('sPhone'), b.phone) + (b.note ? row(t('sNote'), b.note) : '');
+
+    const hasLinks = cfg.fbUrl || cfg.igUrl;
+    $('cancelNote').innerHTML = lang==='zh'
+      ? '如需更改或取消，請來電'+telHtml()+'或私訊我們'+(hasLinks?'：':'。')
+      : 'To change or cancel, please call'+telHtml()+'or message us'+(hasLinks?':':'.');
+    const links = $('contactLinks'); links.innerHTML = '';
+    [[cfg.fbUrl, t('pageLabel')],[cfg.igUrl, t('igLabel')]].forEach(p=>{
+      if(!p[0]) return;
+      const a = document.createElement('a');
+      a.href = p[0]; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.textContent = p[1];
+      links.appendChild(a);
+    });
+    renderCalendar(b);
+  }
+
+  // ---- 加到行事曆 ----
+  function pad2(n){ return String(n).padStart(2,'0'); }
+  function utcStamp(date, time, addMin){
+    const d = date.split('-').map(Number), tt = time.split(':').map(Number);
+    const x = new Date(Date.UTC(d[0], d[1]-1, d[2], tt[0]-8, tt[1]+addMin));   // 台北 = UTC+8
+    return x.getUTCFullYear()+pad2(x.getUTCMonth()+1)+pad2(x.getUTCDate())+'T'+pad2(x.getUTCHours())+pad2(x.getUTCMinutes())+'00Z';
+  }
+  function eventTitle(n){
+    return lang==='zh' ? '久時拌麵 訂位（'+n+' 位）' : "Josh's Noodles reservation ("+n+(n===1?' guest':' guests')+')';
+  }
+  function eventDesc(){
+    const tel = cfg.callPhone;
+    return lang==='zh'
+      ? (tel ? '如需更改或取消，請來電 '+tel+'。' : '如需更改或取消，請來電或私訊我們。')
+      : (tel ? 'To change or cancel, please call '+tel+'.' : 'To change or cancel, please call or message us.');
+  }
+  function eventLocation(){
+    return (lang==='zh' ? '久時拌麵' : "Josh's Noodles") + (cfg.address ? ' ' + cfg.address : '');
+  }
+  function renderCalendar(b){
+    const mins = cfg.eventMinutes || 90;
+    $('gcalBtn').href = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
+      + '&text=' + encodeURIComponent(eventTitle(b.size))
+      + '&dates=' + utcStamp(b.date, b.time, 0) + '/' + utcStamp(b.date, b.time, mins)
+      + '&details=' + encodeURIComponent(eventDesc())
+      + '&location=' + encodeURIComponent(eventLocation());
+    const ics = $('icsBtn');
+    if(cfg.webAppUrl){
+      ics.style.display = '';
+      ics.href = cfg.webAppUrl + (cfg.webAppUrl.indexOf('?') > -1 ? '&' : '?')
+        + 'page=ics&date=' + encodeURIComponent(b.date) + '&time=' + encodeURIComponent(b.time) + '&n=' + b.size + '&lang=' + lang;
+    }else{
+      ics.style.display = 'none';
+    }
+  }
+
+  $('newBookingBtn').addEventListener('click', ()=>{
+    lastBooking = null;
+    $('formScreen').classList.remove('hide'); $('successScreen').classList.remove('show');
+    selectedTime = ''; $('fNote').value = '';
+    loadAvailability();
+  });
+
+  init();
+})();
+</script>
+</body>
+</html>
