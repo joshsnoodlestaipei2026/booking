@@ -103,12 +103,28 @@
   .notice-card li{margin-bottom:8px;}
   .notice-card li::marker{color:var(--brass-deep);font-weight:700;}
   textarea{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:16px;background:var(--surface);color:var(--ink);font-family:inherit;resize:vertical;min-height:64px;}
+  .err.info{color:var(--pine);font-weight:700;font-size:14px;background:var(--pine-soft);padding:10px 12px;border-radius:10px;line-height:1.6;}
+  .code-box{background:var(--pine-soft);border:1px dashed var(--pine);border-radius:12px;padding:14px;text-align:center;margin-bottom:16px;}
+  .code-box .lbl{font-size:12px;color:var(--ink-soft);}
+  .code-box .code{font-family:"Noto Serif TC",serif;font-size:28px;font-weight:700;letter-spacing:4px;color:var(--pine);margin:4px 0;word-break:break-all;}
+  .code-box .hint{font-size:12px;color:var(--ink-soft);line-height:1.6;margin:0 0 10px;}
+  .btn.small{padding:10px;font-size:14px;}
+  .badge{display:inline-block;padding:3px 12px;border-radius:99px;font-size:13px;font-weight:700;margin-bottom:12px;}
+  .badge.active{background:var(--sage-soft);color:var(--sage);}
+  .badge.cancelled{background:var(--rose-soft);color:var(--rose);}
+  .badge.past{background:var(--paper-dim);color:var(--ink-soft);}
+  .btn.danger{background:var(--surface);color:var(--rose);border:1px solid var(--rose);margin-bottom:10px;}
+  .my-banner{display:none;background:var(--pine-soft);border:1px solid var(--pine);border-radius:var(--radius);padding:12px 14px;margin-bottom:16px;font-size:14px;line-height:1.6;}
+  .my-banner.show{display:block;}
+  .my-banner b{color:var(--pine);}
+  .my-screen{display:none;}
+  .my-screen.show{display:block;}
   .privacy{font-size:12px;color:var(--ink-soft);line-height:1.6;margin:10px 0 12px;}
 </style>
 </head>
 <body>
 <div class="app" id="app">
-  <div class="topbar"><button type="button" class="link-btn" id="noticeBtn" data-i18n="noticeLink"></button><button type="button" class="lang-btn" id="langBtn">EN</button></div>
+  <div class="topbar"><span><button type="button" class="link-btn" id="noticeBtn" data-i18n="noticeLink"></button> <button type="button" class="link-btn" id="myBtn" data-i18n="myLink"></button></span><button type="button" class="lang-btn" id="langBtn">EN</button></div>
 
   <div class="form-screen" id="formScreen">
     <div class="header">
@@ -117,6 +133,7 @@
     </div>
 
     <div class="closed-banner" id="closedBanner" data-i18n="closedBanner"></div>
+    <div class="my-banner" id="myBanner"><div id="myBannerText"></div><button type="button" class="btn ghost small" id="myBannerBtn" style="margin:8px 0 0;" data-i18n="bannerBtn"></button></div>
 
     <div class="card">
       <h2 data-i18n="step1"></h2>
@@ -178,6 +195,12 @@
         <p data-i18n="okSub"></p>
       </div>
       <div class="booking-summary" id="bookingSummary"></div>
+      <div class="code-box" id="codeBox">
+        <div class="lbl" data-i18n="codeLbl"></div>
+        <div class="code" id="codeText"></div>
+        <p class="hint" data-i18n="codeHint"></p>
+        <button type="button" class="btn ghost small" id="copyLinkBtn" style="margin:0;" data-i18n="copyLink"></button>
+      </div>
       <div class="cal-box">
         <div class="cal-title" data-i18n="calTitle"></div>
         <a class="btn cal-btn" id="gcalBtn" target="_blank" rel="noopener noreferrer" data-i18n="calGoogle"></a>
@@ -188,6 +211,33 @@
       <p class="cancel-note" id="cancelNote"></p>
       <div class="contact-links" id="contactLinks"></div>
     </div>
+  </div>
+
+  <div class="my-screen" id="myScreen">
+    <div class="header">
+      <h1 class="name">久時拌麵</h1>
+      <p class="tag" data-i18n="myTag"></p>
+    </div>
+    <div class="card" id="lookupCard">
+      <h2 data-i18n="lookupTitle"></h2>
+      <div class="field"><label data-i18n="lblCode"></label><input type="text" id="lCode" maxlength="14" autocapitalize="characters" autocomplete="off" spellcheck="false" data-i18n-ph="phCode"></div>
+      <div class="field"><label data-i18n="lblPhone"></label><input type="tel" id="lPhone" placeholder="09xx-xxx-xxx" maxlength="20"></div>
+      <div class="err" id="errLookup"></div>
+      <button class="btn primary" id="lookupBtn" data-i18n="lookupBtn"></button>
+    </div>
+    <div class="card" id="myCard" style="display:none;">
+      <div style="text-align:center;"><span class="badge" id="myBadge"></span></div>
+      <div class="booking-summary" id="mySummary"></div>
+      <div id="myCalBox" class="cal-box">
+        <div class="cal-title" data-i18n="calTitle"></div>
+        <a class="btn cal-btn" id="gcalBtn2" target="_blank" rel="noopener noreferrer" data-i18n="calGoogle"></a>
+        <a class="btn cal-btn alt" id="icsBtn2" target="_blank" rel="noopener noreferrer" data-i18n="calApple"></a>
+      </div>
+      <div class="err" id="errCancel"></div>
+      <button class="btn danger" id="cancelBtn" data-i18n="cancelBtn"></button>
+      <p class="cancel-note" id="myNote"></p>
+    </div>
+    <button class="btn ghost" id="myBackBtn" data-i18n="backBook"></button>
   </div>
 </div>
 
@@ -218,7 +268,7 @@
       lunch:'午餐', dinner:'晚餐', full:'額滿', passed:'已過', closed:'暫停',
       errDate:'請選擇日期', errTime:'請選擇時段', errName:'請輸入姓名', errPhone:'請輸入正確的電話',
       errPaused:'目前暫停線上訂位。',
-      errNet:'連線失敗，請檢查網路後再試一次（請先不要重複送出，以免重複訂位）。',
+      errNet:'連線不穩，不確定是否送出成功。請直接再按一次「確認訂位」，若剛才已經成功，系統會直接帶您到訂位完成頁，不會重複訂位。',
       errGeneric:'訂位失敗，請稍後再試',
       okTitle:'訂位成功！', okSub:'我們已幫您保留位子，期待您的光臨',
       sDate:'日期', sTime:'時段', sGuests:'人數', sName:'姓名', sPhone:'電話',
@@ -228,7 +278,14 @@
       calHint:'iPhone 版會在前一天與用餐前 2 小時提醒您；Google 日曆則依您的預設提醒時間。',
       lblNote:'備註（選填）', phNote:'例：食物過敏、兒童座椅、慶生', sNote:'備註',
       noticeLink:'訂位須知', noticeTitle:'訂位須知', noticeLead:'訂位前請先閱讀以下事項', noticeOk:'我已了解，開始訂位',
-      closedTitle:'店休日', dayOffTitle:'本日休息', dayOffBody:'這天不開放訂位，請選擇其他日期。'
+      closedTitle:'店休日', dayOffTitle:'本日休息', dayOffBody:'這天不開放訂位，請選擇其他日期。',
+      myLink:'查詢／取消訂位', myTag:"Josh's Noodles · 我的訂位", bannerBtn:'查看／取消這筆訂位', bannerText:'您有一筆訂位：',
+      codeLbl:'訂位代碼', codeHint:'請截圖或複製保存。日後可用這組代碼或下方連結查詢、取消訂位。', copyLink:'複製「我的訂位」連結', copied:'已複製連結', copyFail:'無法自動複製，請長按連結後複製',
+      lookupTitle:'查詢／取消訂位', lblCode:'訂位代碼（8 碼）', phCode:'例：ABCD2345', lookupBtn:'查詢', lookupNone:'找不到這筆訂位，請確認代碼和電話是否正確，或來電洽詢。',
+      stActive:'訂位有效', stCancelled:'這筆訂位已取消', stPast:'這筆訂位已過期',
+      cancelBtn:'取消這筆訂位', cancelConfirm:'確定要取消這筆訂位嗎？取消後座位會釋出給其他客人。', cancelling:'取消中…', cancelOk:'已取消訂位，期待下次光臨', cancelFail:'取消失敗，請稍後再試或來電洽詢。',
+      backBook:'回到訂位頁', lookupLoading:'查詢中…', dupTitle:'您已經訂位成功了',
+      myNoteActive:'如需更改（日期、時段、人數），請先取消再重新訂位，或來電洽詢。', myNoteOther:'歡迎重新訂位。'
     },
     en: {
       tagline:"Josh's Noodles · Online Booking", tagDone:"Josh's Noodles · Booking Complete",
@@ -240,7 +297,7 @@
       lunch:'Lunch', dinner:'Dinner', full:'Full', passed:'Passed', closed:'Unavailable',
       errDate:'Please choose a date', errTime:'Please choose a time', errName:'Please enter your name', errPhone:'Please enter a valid phone number',
       errPaused:'Online booking is currently paused.',
-      errNet:"Connection failed. Please check your network and try again (please don't resubmit yet, to avoid a duplicate booking).",
+      errNet:"Connection unstable — we're not sure it went through. Please just tap \"Confirm booking\" again; if it already succeeded, you'll be taken to the confirmation page and won't be booked twice.",
       errGeneric:'Booking failed. Please try again later.',
       okTitle:'Booking confirmed!', okSub:"Your table is saved. We look forward to seeing you!",
       sDate:'Date', sTime:'Time', sGuests:'Guests', sName:'Name', sPhone:'Phone',
@@ -250,7 +307,14 @@
       calHint:'The iPhone version reminds you the day before and 2 hours before; Google Calendar uses your default reminder.',
       lblNote:'Notes (optional)', phNote:'e.g. food allergies, high chair, birthday', sNote:'Notes',
       noticeLink:'Booking notes', noticeTitle:'Booking Notes', noticeLead:'Please read before booking', noticeOk:'I understand — start booking',
-      closedTitle:'Closed', dayOffTitle:'Closed on this date', dayOffBody:'Booking is not available on this date. Please choose another date.'
+      closedTitle:'Closed', dayOffTitle:'Closed on this date', dayOffBody:'Booking is not available on this date. Please choose another date.',
+      myLink:'Find / cancel booking', myTag:"Josh's Noodles · My Booking", bannerBtn:'View / cancel this booking', bannerText:'You have a booking: ',
+      codeLbl:'Booking code', codeHint:'Please screenshot or copy this. You can use this code or the link below to look up or cancel your booking.', copyLink:'Copy "My booking" link', copied:'Link copied', copyFail:'Could not copy automatically. Please long-press the link to copy.',
+      lookupTitle:'Find / cancel a booking', lblCode:'Booking code (8 characters)', phCode:'e.g. ABCD2345', lookupBtn:'Look up', lookupNone:'Booking not found. Please check your code and phone number, or call us.',
+      stActive:'Booking confirmed', stCancelled:'This booking was cancelled', stPast:'This booking has passed',
+      cancelBtn:'Cancel this booking', cancelConfirm:'Cancel this booking? Your table will be released to other guests.', cancelling:'Cancelling…', cancelOk:'Booking cancelled. We hope to see you next time!', cancelFail:'Could not cancel. Please try again later or call us.',
+      backBook:'Back to booking', lookupLoading:'Looking up…', dupTitle:'Your booking is already confirmed',
+      myNoteActive:'To change the date, time or party size, please cancel and book again, or call us.', myNoteOther:'You are welcome to book again.'
     }
   };
   const DOW = { zh:['日','一','二','三','四','五','六'], en:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'] };
@@ -263,6 +327,19 @@
   let cfg = { open:true, slots:[], maxParty:4, minDate:'', maxDate:'', closedWeekdays:[0,1], extraOpenDates:[], noticeZh:[], noticeEn:[], callPhone:'', fbUrl:'', igUrl:'', address:'', webAppUrl:'', eventMinutes:90, privacyZh:'', privacyEn:'' };
   let avail = null, selectedDate = '', selectedTime = '', partySize = 2, submitting = false;
   let lastBooking = null;
+  let reqId = newReqId();
+  let myView = null, myCode = '';
+  function newReqId(){ let x=''; const c='abcdefghijklmnopqrstuvwxyz0123456789'; for(let i=0;i<20;i++) x+=c.charAt(Math.floor(Math.random()*c.length)); return x; }
+  function fmtCode(c){ c=String(c||''); return c.length===8 ? c.slice(0,4)+'-'+c.slice(4) : c; }
+  function myLinkUrl(code){ return location.origin + location.pathname + '?r=' + encodeURIComponent(code); }
+  function saveMy(code){ try{ if(code) localStorage.setItem('jiou_my', code); else localStorage.removeItem('jiou_my'); }catch(e){} }
+  function loadMy(){ try{ return localStorage.getItem('jiou_my') || ''; }catch(e){ return ''; } }
+  function showScreen(name){
+    $('formScreen').classList.toggle('hide', name !== 'form');
+    $('successScreen').classList.toggle('show', name === 'success');
+    $('myScreen').classList.toggle('show', name === 'my');
+    window.scrollTo(0,0);
+  }
 
   const $ = id => document.getElementById(id);
   const t = k => T[lang][k];
@@ -294,6 +371,8 @@
     const bust = '&t=' + Date.now();   // 避免被瀏覽器快取
     if(fn === 'getPublicConfig') return apiCall(API_URL + '?api=config' + bust, { cache:'no-store' });
     if(fn === 'getSlotAvailability') return apiCall(API_URL + '?api=availability&date=' + encodeURIComponent(args[0]) + bust, { cache:'no-store' });
+    if(fn === 'lookupBooking') return apiCall(API_URL + '?api=lookup&code=' + encodeURIComponent(args[0]) + '&phone=' + encodeURIComponent(args[1]||'') + bust, { cache:'no-store' });
+    if(fn === 'cancelBooking') return apiCall(API_URL, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body: JSON.stringify({ action:'cancel', code: args[0] }) });
     if(fn === 'submitBooking') return apiCall(API_URL, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body: JSON.stringify({ action:'submit', data: args[0] }) });
     return Promise.reject(new Error('unsupported call'));
   }
@@ -311,6 +390,7 @@
     renderNotice();
     renderPrivacy();
     if(lastBooking) renderSuccess();
+    if(typeof renderMy === 'function' && myView) renderMy();
   }
 
   function closedNames(){
@@ -351,7 +431,7 @@
       '座位自訂位時間起保留 10 分鐘，逾時未到，座位將釋出給現場候位的客人。',
       '現場如有候位客人，用餐時間限 75 分鐘，敬請見諒。',
       '網站開放當日起一個月內、1–4 位的訂位；5 位以上請來電洽詢。',
-      '如需更改或取消，請提早來電或私訊我們。'
+      '如需取消，可用訂位成功後的訂位代碼或連結自行取消；如需更改，請提早來電或私訊我們。'
     ].concat(hasClosed ? ['每'+closedNames()+'為店休日。'] : [], [
       '如有食物過敏或特殊需求，請填寫備註欄，謝謝您。'
     ]);
@@ -359,7 +439,7 @@
       'Your table is held for 10 minutes from the booking time. After that, it may be released to guests waiting on site.',
       'When guests are waiting, dining time is limited to 75 minutes. Thank you for your understanding.',
       'Online booking is open up to one month ahead, for 1–4 guests. For 5 or more, please call us.',
-      'To change or cancel, please call or message us as early as you can.'
+      'To cancel, use the booking code or link you receive after booking. To change your booking, please call or message us as early as you can.'
     ].concat(hasClosed ? ['We are closed every '+closedNames()+'.'] : [], [
       'For food allergies or special requests, please fill in the notes field. Thank you!'
     ]);
@@ -396,7 +476,7 @@
     $('noticeOk').addEventListener('click', hideNotice);
     document.addEventListener('keydown', e=>{ if(e.key==='Escape') hideNotice(); });
     applyStatic();
-    showNotice();   // 一打開就先顯示訂位須知
+    if(!/[?&]r=/.test(location.search)) showNotice();   // 一打開就先顯示訂位須知（從「我的訂位」連結進來就不跳）
     $('timeSlots').innerHTML = '<div class="loading">'+esc(t('loadingSlots'))+'</div>';
     try{ cfg = await runServer('getPublicConfig'); }
     catch(e){
@@ -464,6 +544,7 @@
   $('submitBtn').addEventListener('click', async ()=>{
     if(submitting) return;
     ['errName','errPhone','errDate','errTime','errSubmit'].forEach(id=>$(id).textContent='');
+    $('errSubmit').className = 'err';
     const name = $('fName').value.trim(), phone = $('fPhone').value.trim();
     if(!cfg.open){ $('errSubmit').textContent = t('errPaused'); return; }
     if(!selectedDate){ $('errDate').textContent = t('errDate'); return; }
@@ -477,12 +558,15 @@
     submitting = true;
     const btn = $('submitBtn'); btn.disabled = true; btn.textContent = t('submitting');
     try{
-      const res = await runServer('submitBooking', { date:selectedDate, time:selectedTime, name, phone, partySize, note });
+      const res = await runServer('submitBooking', { date:selectedDate, time:selectedTime, name, phone, partySize, note, reqId });
       if(res && res.ok){
-        lastBooking = { date:res.date, time:res.time, size:res.partySize, name, phone, note };
-        $('formScreen').classList.add('hide'); $('successScreen').classList.add('show');
-        renderSuccess(); window.scrollTo(0,0);
+        lastBooking = { date:res.date, time:res.time, size:res.partySize, name, phone, note, code:res.code||'' };
+        if(res.code) saveMy(res.code);
+        reqId = newReqId();
+        showScreen('success');
+        renderSuccess(); refreshBanner();
       }else{
+        $('errSubmit').className = 'err' + (res && res.duplicate ? ' info' : '');
         $('errSubmit').textContent = serverMsg(res || {});
         if(res && (res.full || res.closed || res.closedDay)){ selectedTime=''; loadAvailability(); }
       }
@@ -497,10 +581,12 @@
       row(t('sDate'), niceDate(b.date)) + row(t('sTime'), b.time) + row(t('sGuests'), guests(b.size)) +
       row(t('sName'), b.name) + row(t('sPhone'), b.phone) + (b.note ? row(t('sNote'), b.note) : '');
 
+    $('codeBox').style.display = b.code ? '' : 'none';
+    $('codeText').textContent = fmtCode(b.code);
     const hasLinks = cfg.fbUrl || cfg.igUrl;
     $('cancelNote').innerHTML = lang==='zh'
-      ? '如需更改或取消，請來電'+telHtml()+'或私訊我們'+(hasLinks?'：':'。')
-      : 'To change or cancel, please call'+telHtml()+'or message us'+(hasLinks?':':'.');
+      ? '如需取消，請用上方代碼或連結；如需更改，請來電'+telHtml()+'或私訊我們'+(hasLinks?'：':'。')
+      : 'To cancel, use the code or link above. To change your booking, please call'+telHtml()+'or message us'+(hasLinks?':':'.');
     const links = $('contactLinks'); links.innerHTML = '';
     [[cfg.fbUrl, t('pageLabel')],[cfg.igUrl, t('igLabel')]].forEach(p=>{
       if(!p[0]) return;
@@ -508,7 +594,7 @@
       a.href = p[0]; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.textContent = p[1];
       links.appendChild(a);
     });
-    renderCalendar(b);
+    renderCalendar(b, $('gcalBtn'), $('icsBtn'));
   }
 
   // ---- 加到行事曆 ----
@@ -521,23 +607,24 @@
   function eventTitle(n){
     return lang==='zh' ? '久時拌麵 訂位（'+n+' 位）' : "Josh's Noodles reservation ("+n+(n===1?' guest':' guests')+')';
   }
-  function eventDesc(){
+  function eventDesc(code){
     const tel = cfg.callPhone;
-    return lang==='zh'
-      ? (tel ? '如需更改或取消，請來電 '+tel+'。' : '如需更改或取消，請來電或私訊我們。')
-      : (tel ? 'To change or cancel, please call '+tel+'.' : 'To change or cancel, please call or message us.');
+    const base = lang==='zh'
+      ? (tel ? '如需更改，請來電 '+tel+'。' : '如需更改，請來電或私訊我們。')
+      : (tel ? 'To change your booking, please call '+tel+'.' : 'To change your booking, please call or message us.');
+    if(!code) return base;
+    return base + (lang==='zh' ? ' 取消訂位：' : ' Cancel: ') + myLinkUrl(code);
   }
   function eventLocation(){
     return (lang==='zh' ? '久時拌麵' : "Josh's Noodles") + (cfg.address ? ' ' + cfg.address : '');
   }
-  function renderCalendar(b){
+  function renderCalendar(b, g, ics){
     const mins = cfg.eventMinutes || 90;
-    $('gcalBtn').href = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
+    g.href = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
       + '&text=' + encodeURIComponent(eventTitle(b.size))
       + '&dates=' + utcStamp(b.date, b.time, 0) + '/' + utcStamp(b.date, b.time, mins)
-      + '&details=' + encodeURIComponent(eventDesc())
+      + '&details=' + encodeURIComponent(eventDesc(b.code))
       + '&location=' + encodeURIComponent(eventLocation());
-    const ics = $('icsBtn');
     if(cfg.webAppUrl){
       ics.style.display = '';
       ics.href = cfg.webAppUrl + (cfg.webAppUrl.indexOf('?') > -1 ? '&' : '?')
@@ -549,12 +636,90 @@
 
   $('newBookingBtn').addEventListener('click', ()=>{
     lastBooking = null;
-    $('formScreen').classList.remove('hide'); $('successScreen').classList.remove('show');
+    showScreen('form');
     selectedTime = ''; $('fNote').value = '';
     loadAvailability();
   });
 
-  init();
+  // ---- 查詢 / 取消訂位 ----
+  function statusText(st){ return st==='active' ? t('stActive') : (st==='cancelled' ? t('stCancelled') : t('stPast')); }
+  function renderMy(){
+    const v = myView;
+    $('lookupCard').style.display = v ? 'none' : '';
+    $('myCard').style.display = v ? '' : 'none';
+    if(!v) return;
+    const row = (l,x)=>'<div class="row"><span class="label">'+esc(l)+'</span><span class="value">'+esc(x)+'</span></div>';
+    $('myBadge').className = 'badge ' + v.status;
+    $('myBadge').textContent = statusText(v.status);
+    $('mySummary').innerHTML = row(t('sDate'), niceDate(v.date)) + row(t('sTime'), v.time) + row(t('sGuests'), guests(v.partySize)) + row(t('sName'), v.name) + (v.note ? row(t('sNote'), v.note) : '');
+    const active = v.status === 'active';
+    $('myCalBox').style.display = active ? '' : 'none';
+    $('cancelBtn').style.display = active ? '' : 'none';
+    $('myNote').textContent = active ? t('myNoteActive') : t('myNoteOther');
+    if(active) renderCalendar({ date:v.date, time:v.time, size:v.partySize, code:myCode }, $('gcalBtn2'), $('icsBtn2'));
+  }
+  async function openMy(code, phone, silent){
+    myCode = String(code||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+    showScreen('my'); myView = null; renderMy();
+    $('errLookup').textContent = '';
+    $('lCode').value = fmtCode(myCode);
+    if(!myCode){ return; }
+    const btn = $('lookupBtn'); btn.disabled = true; btn.textContent = t('lookupLoading');
+    try{
+      const v = await runServer('lookupBooking', myCode, phone||'');
+      if(v && v.ok){ myView = v; saveMy(myCode); }
+      else $('errLookup').textContent = silent ? '' : (serverMsg(v||{}) || t('lookupNone'));
+    }catch(e){ console.error(e); $('errLookup').textContent = t('lookupNone'); }
+    btn.disabled = false; btn.textContent = t('lookupBtn');
+    renderMy();
+  }
+  $('myBtn').addEventListener('click', ()=>openMy(loadMy(), '', true));
+  $('myBackBtn').addEventListener('click', ()=>{ showScreen('form'); try{ history.replaceState(null,'',location.pathname); }catch(e){} });
+  $('lookupBtn').addEventListener('click', ()=>{
+    const code = $('lCode').value, phone = $('lPhone').value.trim();
+    if(String(code).replace(/[^A-Za-z0-9]/g,'').length !== 8){ $('errLookup').textContent = t('lookupNone'); return; }
+    if(phone.replace(/\D/g,'').length < 8){ $('errLookup').textContent = t('errPhone'); return; }
+    openMy(code, phone, false);
+  });
+  $('cancelBtn').addEventListener('click', async ()=>{
+    if(!myView || myView.status !== 'active') return;
+    if(!confirm(t('cancelConfirm'))) return;
+    const btn = $('cancelBtn'); btn.disabled = true; btn.textContent = t('cancelling'); $('errCancel').textContent = '';
+    try{
+      const v = await runServer('cancelBooking', myCode);
+      if(v && v.ok && v.status === 'cancelled'){ myView = v; saveMy(''); renderMy(); showToast(t('cancelOk')); refreshBanner(); }
+      else $('errCancel').textContent = serverMsg(v||{}) || t('cancelFail');
+    }catch(e){ console.error(e); $('errCancel').textContent = t('cancelFail'); }
+    btn.disabled = false; btn.textContent = t('cancelBtn');
+  });
+  $('copyLinkBtn').addEventListener('click', async ()=>{
+    const code = lastBooking && lastBooking.code; if(!code) return;
+    const url = myLinkUrl(code);
+    try{ await navigator.clipboard.writeText(url); showToast(t('copied')); }
+    catch(e){
+      try{ const ta=document.createElement('textarea'); ta.value=url; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast(t('copied')); }
+      catch(e2){ showToast(t('copyFail')); }
+    }
+  });
+  async function refreshBanner(){
+    const code = loadMy(), box = $('myBanner');
+    box.classList.remove('show');
+    if(!code) return;
+    try{
+      const v = await runServer('lookupBooking', code, '');
+      if(v && v.ok && v.status === 'active'){
+        $('myBannerText').innerHTML = esc(t('bannerText')) + '<b>' + esc(niceDate(v.date) + ' ' + v.time + ' · ' + guests(v.partySize)) + '</b>';
+        $('myBannerBtn').onclick = ()=>openMy(code, '', true);
+        box.classList.add('show');
+      }else{ saveMy(''); }
+    }catch(e){}
+  }
+
+  init().then(()=>{
+    let r = '';
+    try{ r = new URLSearchParams(location.search).get('r') || ''; }catch(e){}
+    if(r) openMy(r, '', false); else refreshBanner();
+  });
 })();
 </script>
 </body>
