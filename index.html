@@ -265,7 +265,7 @@
       lblName:'姓名', phName:'例：王小姐', lblPhone:'電話',
       submit:'確認訂位', submitting:'訂位中…', loadingSlots:'讀取時段中…',
       loadFail:'讀取失敗，請重新整理頁面',
-      lunch:'午餐', dinner:'晚餐', full:'額滿', passed:'已過', closed:'暫停',
+      lunch:'午餐', dinner:'晚餐', full:'額滿', passed:'已過', cutoff:'已截止', closed:'暫停',
       errDate:'請選擇日期', errTime:'請選擇時段', errName:'請輸入姓名', errPhone:'請輸入正確的電話',
       errPaused:'目前暫停線上訂位。',
       errNet:'連線不穩，不確定是否送出成功。請直接再按一次「確認訂位」，若剛才已經成功，系統會直接帶您到訂位完成頁，不會重複訂位。',
@@ -294,7 +294,7 @@
       lblName:'Name', phName:'e.g. Ms. Wang', lblPhone:'Phone',
       submit:'Confirm booking', submitting:'Booking…', loadingSlots:'Loading times…',
       loadFail:'Failed to load. Please refresh the page.',
-      lunch:'Lunch', dinner:'Dinner', full:'Full', passed:'Passed', closed:'Unavailable',
+      lunch:'Lunch', dinner:'Dinner', full:'Full', passed:'Passed', cutoff:'Closed', closed:'Unavailable',
       errDate:'Please choose a date', errTime:'Please choose a time', errName:'Please enter your name', errPhone:'Please enter a valid phone number',
       errPaused:'Online booking is currently paused.',
       errNet:"Connection unstable — we're not sure it went through. Please just tap \"Confirm booking\" again; if it already succeeded, you'll be taken to the confirmation page and won't be booked twice.",
@@ -524,7 +524,7 @@
       btn.type = 'button';
       btn.className = 'time-btn' + (ok && selectedTime===slot.time ? ' selected' : '');
       let note = '';
-      if(slot.passed) note = t('passed'); else if(slot.closed) note = t('closed'); else if(!slot.open[bucket]) note = t('full');
+      if(slot.cutoff) note = t('cutoff'); else if(slot.passed) note = t('passed'); else if(slot.closed) note = t('closed'); else if(!slot.open[bucket]) note = t('full');
       const meal = slot.meal==='lunch' ? t('lunch') : (slot.meal==='dinner' ? t('dinner') : slot.label);
       btn.innerHTML = esc(meal+' '+slot.time) + (note ? '<small>'+esc(note)+'</small>' : '');
       btn.disabled = !ok;
